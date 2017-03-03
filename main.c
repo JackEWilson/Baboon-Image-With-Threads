@@ -11,17 +11,19 @@ typedef struct{
 	int blue;
 }Image;
 
+Image** rotateLeft(Image **array, int x, int y);               
+
 Image** rotateRight(Image **array, int x, int y){               
 	Image **array2 = (Image **)malloc(sizeof(Image *) * y);
 	for(int i = 0; i<y; i++){
 		array2[i] = (Image *) malloc(sizeof(Image) * x);
 	}
-
-	for(int i = 0; i<y; i++){
-		for(int j = 0; j<x; j++){
-			array2[j][i].red = array[i][j].red;
-			array2[j][i].green = array[i][j].green;
-			array2[j][i].blue = array[i][j].blue;
+	array = rotateLeft(array, x, y);
+	for(int i = 0; i<x; i++){
+		for(int j = 0; j<y; j++){
+			array2[i][x-j].red = array[i][j].red;
+			array2[i][x-j].green = array[i][j].green;
+			array2[i][x-j].blue = array[i][j].blue;
 		}
 	}
 
