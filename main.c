@@ -12,7 +12,6 @@ typedef struct{
 }Image;
 
 Image **array;
-//Image **array2;
 int x;
 int y;
 int number;
@@ -22,21 +21,21 @@ float cp;
 void rotateLeft();               
 
 void rotateRight(){               
-//	Image **array2 = (Image **)malloc(sizeof(Image *) * y);
-//	for(int i = 0; i<y; i++){
-//		array2[i] = (Image *) malloc(sizeof(Image) * x);
-//	}
 	rotateLeft();
-	rotateLeft();
-	rotateLeft();
-//	for(int i = 0; i<x; i++){
-//		for(int j = 0; j<y; j++){
-//			array2[i][x-j].red = array[i][j].red;
-//			array2[i][x-j].green = array[i][j].green;
-//			array2[i][x-j].blue = array[i][j].blue;
-//		}
-//	}
-//	array = array2;
+	Image **array2 = (Image **)malloc(sizeof(Image *) * x);
+	for(int i = 0; i<x; i++){
+		array2[i] = (Image *) malloc(sizeof(Image) * y);
+	}
+//	fprintf(stderr, "starting loop %d %d\n", x, y);
+	for(int i = 0; i<x; i++){
+		for(int j = 0; j<y; j++){
+			array2[i][y-j].red = array[i][j].red;
+			array2[i][y-j].green = array[i][j].green;
+			array2[i][y-j].blue = array[i][j].blue;
+		}
+	}
+//	fprintf(stderr, "made it 1");
+	array = array2;
 }
 
 void rotateLeft(){
@@ -44,7 +43,7 @@ void rotateLeft(){
 	for(int i = 0; i<y; i++){
 		array2[i] = (Image *) malloc(sizeof(Image) * x);
 	}
-	fprintf(stderr, "starting %d %d\n", x, y);
+//	fprintf(stderr, "starting %d %d\n", x, y);
 	for(int i = 0; i<x; i++){
 		for(int j = 0; j<y; j++){
 			array2[j][i].red = array[i][j].red;
@@ -55,7 +54,7 @@ void rotateLeft(){
 	int temp = x;
 	x = y;
 	y = temp;
-	fprintf(stderr, "ending %d %d\n", x, y);
+//	fprintf(stderr, "ending %d %d\n", x, y);
 	array = array2;
 }
 
@@ -243,7 +242,6 @@ int main(int argc, char *argv[]){
 	if(bytes_read == -1){
 		fprintf(stderr, "read error\n");
 	}	
-//	fprintf(stderr, "bytes read %d\n", bytes_read);
 
 	array = (Image **)malloc(sizeof(Image *) * x);
 	for(int i = 0; i<x; i++){
@@ -265,18 +263,12 @@ int main(int argc, char *argv[]){
 			tok = strtok(NULL, " ");	
 		}
 	}
-//	fprintf(stderr, "%d %d %d\n", array[0][0].red, array[0][0].green, array[0][0].blue);
-//	fprintf(stderr, "%d %d %d\n", array[511][511].red, array[511][511].green, array[511][511].blue);
-
 	if(argc == 3){
 		int check = 1;
 		number = atoi(argv[1]);
 		char *option = argv[2];
 		pthread_t *threads;
 		threads = (pthread_t *) malloc(sizeof(pthread_t) * number);
-		int pass[2];
-		pass[0] = x;
-		pass[1] = y;
 		int really = 0;
 		if(strcmp("-I", option) == 0){
 			for(int i = 0; i<number; i++){
