@@ -12,35 +12,39 @@ typedef struct{
 }Image;
 
 Image **array;
+//Image **array2;
 int x;
 int y;
 int number;
+int max;
+float cp;
 
-Image** rotateLeft(int x, int y);               
+void rotateLeft();               
 
-Image** rotateRight(int x, int y){               
-	Image **array2 = (Image **)malloc(sizeof(Image *) * y);
-	for(int i = 0; i<y; i++){
-		array2[i] = (Image *) malloc(sizeof(Image) * x);
-	}
-	array = rotateLeft(x, y);
-	for(int i = 0; i<x; i++){
-		for(int j = 0; j<y; j++){
-			array2[i][x-j].red = array[i][j].red;
-			array2[i][x-j].green = array[i][j].green;
-			array2[i][x-j].blue = array[i][j].blue;
-		}
-	}
-
-	return array2;
+void rotateRight(){               
+//	Image **array2 = (Image **)malloc(sizeof(Image *) * y);
+//	for(int i = 0; i<y; i++){
+//		array2[i] = (Image *) malloc(sizeof(Image) * x);
+//	}
+	rotateLeft();
+	rotateLeft();
+	rotateLeft();
+//	for(int i = 0; i<x; i++){
+//		for(int j = 0; j<y; j++){
+//			array2[i][x-j].red = array[i][j].red;
+//			array2[i][x-j].green = array[i][j].green;
+//			array2[i][x-j].blue = array[i][j].blue;
+//		}
+//	}
+//	array = array2;
 }
 
-Image** rotateLeft(int x, int y){               
+void rotateLeft(){
 	Image **array2 = (Image **)malloc(sizeof(Image *) * y);
 	for(int i = 0; i<y; i++){
 		array2[i] = (Image *) malloc(sizeof(Image) * x);
 	}
-
+	fprintf(stderr, "starting %d %d\n", x, y);
 	for(int i = 0; i<x; i++){
 		for(int j = 0; j<y; j++){
 			array2[j][i].red = array[i][j].red;
@@ -48,12 +52,23 @@ Image** rotateLeft(int x, int y){
 			array2[j][i].blue = array[i][j].blue;
 		}
 	}
-
-	return array2;
+	int temp = x;
+	x = y;
+	y = temp;
+	fprintf(stderr, "ending %d %d\n", x, y);
+	array = array2;
 }
 
-void contrast(int x, int y, int max, float cp){
-	for(int i = 0; i<x; i++){
+void *contrast(void *num){
+	int N = (int) num;
+        int temp = x/number;
+        int startx = temp * (N-1);
+	int endx = temp * (N);
+	if(N == number){
+		startx = x;
+	}
+   
+	for(int i = startx; i<endx; i++){
 		for(int j = 0; j<y; j++){
 			if(array[i][j].red <= (max/2)){     
 				array[i][j].red -= (max * cp);
@@ -94,10 +109,18 @@ void contrast(int x, int y, int max, float cp){
 			}
 		}
 	}
+	return NULL;
 }
 
-void invert(int x, int y, int max){
-	for(int i = 0; i<x; i++){
+void invert(void *num){
+	int N = (int) num;
+	int temp = x/number;
+	int startx = temp * (N-1);
+	int endx = temp * (N);   
+	if(N == number){
+		endx = x;
+	}
+	for(int i = startx; i<endx; i++){
 		for(int j = 0; j<y; j++){
 			array[i][j].red = max - array[i][j].red;
 			array[i][j].green = max - array[i][j].green;
@@ -110,14 +133,15 @@ void invert(int x, int y, int max){
 void *extractRed(void *num){
 	int N = (int) num;
 	int temp = x/number;
-	int temp2 = y/number;
 	int startx = temp * (N-1);
 	int endx = temp * (N);
-	int starty = temp2 * (N-1);
-	int endy = temp2 * (N);
-	fprintf(stderr, "%d %d %d %d\n", N, number, temp, temp2);
+	fprintf(stderr, "%d %d %d\n", N, number, temp);
+	if(N == number){
+		endx = x;
+	}
+	fprintf(stderr, "%d %d\n", startx, endx);
 	for(int i = startx; i<endx; i++){
-		for(int j = starty; j<endy; j++){
+		for(int j = 0; j<y; j++){
 			array[i][j].green = 0;
 			array[i][j].blue = 0;
 		}
@@ -126,27 +150,45 @@ void *extractRed(void *num){
 }
 
 
-void extractGreen(int x, int y){
-	for(int i = 0; i<x; i++){
+void *extractGreen(void *num){
+	int N = (int) num;
+        int temp = x/number;
+        int startx = temp * (N-1);
+        int endx = temp * (N);
+	if(N == number){
+			endx = x;
+	}
+
+	for(int i = startx; i<endx; i++){
 		for(int j = 0; j<y; j++){
 			array[i][j].blue = 0;
 			array[i][j].red = 0;
 		}
-	}	
+	}
+	return NULL;	
 }
 
-void extractBlue(int x, int y){
-	for(int i = 0; i<x; i++){
+void *extractBlue(void *num){
+	int N = (int) num;
+        int temp = x/number;
+        int startx = temp * (N-1);
+        int endx = temp * (N);
+	if(N == number){
+		endx = x;
+	}
+	for(int i = startx; i<endx; i++){
 		for(int j = 0; j<y; j++){
 			array[i][j].red = 0;
 			array[i][j].green = 0;
 		}
-	}	
+	}
+	return NULL;
 }
 
 
 
-void printArray(int x, int y){
+void printArray(){
+	fprintf(stderr, "problems with printarray");
 	for(int i = 0; i<x; i++){
 		for(int j = 0; j<y; j++){
 			printf("%d %d %d ", array[i][j].red, array[i][j].green, array[i][j].blue);
@@ -154,11 +196,12 @@ void printArray(int x, int y){
 	}
 }
 
-void finish(char *line1, char *line2, char *line3, int x, int y){
+void finish(char *line1, char *line3){
+	fprintf(stderr, "problems with finish");
 	printf("%s", line1);
-	printf("%s", line2);
+	printf("%d %d\n", x, y);
 	printf("%s", line3);
-	printArray(x, y);
+	printArray();
 }
 
 
@@ -171,14 +214,20 @@ int main(int argc, char *argv[]){
 	char line1[50];
 	char line2[50];
 	char line3[50];
-	char *line2s;
-	fgets(line1, 50, stdin);
-	fgets(line2, 50, stdin);	
-	line2s = (char*)strdup(line2);
+//	char *line2s;
+	if(fgets(line1, 50, stdin) == NULL){
+		fprintf(stderr, "fgets error\n");
+	}
+	if(fgets(line2, 50, stdin) == NULL){
+		fprintf(stderr, "fgets error\n");
+	}	
+//	line2s = (char*)strdup(line2);
 	char *token = strtok(line2, " ");		
 	token = strtok(NULL, " ");
-	fgets(line3, 50, stdin);
-	int max = atoi(line3);	
+	if(fgets(line3, 50, stdin) == NULL){
+		fprintf(stderr, "fgets error\n");
+	}
+	max = atoi(line3);	
 	
 	x = atoi(line2);
 	y = atoi(token);
@@ -191,8 +240,10 @@ int main(int argc, char *argv[]){
 	
 	unsigned char *buffer = (unsigned char *)malloc(fsize);	
 	int bytes_read = read(0, buffer, fsize);
-	
-	fprintf(stderr, "bytes read %d\n", bytes_read);
+	if(bytes_read == -1){
+		fprintf(stderr, "read error\n");
+	}	
+//	fprintf(stderr, "bytes read %d\n", bytes_read);
 
 	array = (Image **)malloc(sizeof(Image *) * x);
 	for(int i = 0; i<x; i++){
@@ -214,10 +265,11 @@ int main(int argc, char *argv[]){
 			tok = strtok(NULL, " ");	
 		}
 	}
-	fprintf(stderr, "%d %d %d\n", array[0][0].red, array[0][0].green, array[0][0].blue);
-	fprintf(stderr, "%d %d %d\n", array[511][511].red, array[511][511].green, array[511][511].blue);
+//	fprintf(stderr, "%d %d %d\n", array[0][0].red, array[0][0].green, array[0][0].blue);
+//	fprintf(stderr, "%d %d %d\n", array[511][511].red, array[511][511].green, array[511][511].blue);
 
 	if(argc == 3){
+		int check = 1;
 		number = atoi(argv[1]);
 		char *option = argv[2];
 		pthread_t *threads;
@@ -225,42 +277,54 @@ int main(int argc, char *argv[]){
 		int pass[2];
 		pass[0] = x;
 		pass[1] = y;
-
+		int really = 0;
 		if(strcmp("-I", option) == 0){
-			invert(x, y, max);
+			for(int i = 0; i<number; i++){
+				really++;
+				pthread_create(&threads[i], NULL, invert, (void *) really);
+			}
 		}	
 		if(strcmp("-red", option) == 0){
-			int really = 0;
 			for(int i = 0; i<number; i++){
 				really++;
 				pthread_create(&threads[i], NULL, extractRed, (void *) really);
 			}
-
-//			extractRed(x, y);
 		}
 		if(strcmp("-green", option) == 0){
-			extractGreen(x, y);
+			for(int i = 0; i<number; i++){
+                        	really++;
+                        	pthread_create(&threads[i], NULL, extractGreen, (void *) really);
+			}
 		}
 		if(strcmp("-blue", option) == 0){
-			extractBlue(x, y);
+			for(int i = 0; i<number; i++){
+                        	really++;
+                        	pthread_create(&threads[i], NULL, extractBlue, (void *) really);
+			}
 		}
 		if(strcmp("-R", option) == 0){
-			array = rotateRight(x, y);
+			rotateRight();
+			check = 0;
 		}
 		if(strcmp("-L", option) == 0){
-			array = rotateLeft(x, y);	
+			rotateLeft();
+			check = 0;	
 		}
-		finish(line1, line2s, line3, x, y);
+		if(argc == 4){
+			cp = atof(argv[3]);
+			for(int i = 0; i<number; i++){
+				really++;
+				pthread_create(&threads[i], NULL, contrast, (void *) really);
+			}
+		}
+		if(check == 1){
+		fprintf(stderr, "should not be running");
+			for(int i = 0; i<number; i++){
+				pthread_join(threads[i], NULL);
+			}
+		}
+		finish(line1, line3);
 	}
-	if(argc == 4){
-		int number = atoi(argv[1]);
-		char *option = argv[2];
-		float foo = atof(argv[3]);
-		fprintf(stderr, "here and foo is: %f\n", foo);
-		contrast(x, y, max, foo);
-		finish(line1, line2s, line3, x, y);
-	}
-
 	
 	return 0;
 }
