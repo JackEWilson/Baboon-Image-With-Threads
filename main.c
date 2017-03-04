@@ -36,6 +36,7 @@ void rotateRight(){
 	}
 //	fprintf(stderr, "made it 1");
 	array = array2;
+//	fprintf(stderr, "ending %d %d\n", x, y);
 }
 
 void rotateLeft(){
@@ -54,19 +55,17 @@ void rotateLeft(){
 	int temp = x;
 	x = y;
 	y = temp;
-//	fprintf(stderr, "ending %d %d\n", x, y);
 	array = array2;
 }
-
+                      
 void *contrast(void *num){
 	int N = (int) num;
         int temp = x/number;
         int startx = temp * (N-1);
 	int endx = temp * (N);
 	if(N == number){
-		startx = x;
+		endx = x;
 	}
-   
 	for(int i = startx; i<endx; i++){
 		for(int j = 0; j<y; j++){
 			if(array[i][j].red <= (max/2)){     
@@ -134,11 +133,9 @@ void *extractRed(void *num){
 	int temp = x/number;
 	int startx = temp * (N-1);
 	int endx = temp * (N);
-	fprintf(stderr, "%d %d %d\n", N, number, temp);
 	if(N == number){
 		endx = x;
 	}
-	fprintf(stderr, "%d %d\n", startx, endx);
 	for(int i = startx; i<endx; i++){
 		for(int j = 0; j<y; j++){
 			array[i][j].green = 0;
@@ -187,7 +184,7 @@ void *extractBlue(void *num){
 
 
 void printArray(){
-	fprintf(stderr, "problems with printarray");
+//	fprintf(stderr, "problems with printarray");
 	for(int i = 0; i<x; i++){
 		for(int j = 0; j<y; j++){
 			printf("%d %d %d ", array[i][j].red, array[i][j].green, array[i][j].blue);
@@ -196,7 +193,7 @@ void printArray(){
 }
 
 void finish(char *line1, char *line3){
-	fprintf(stderr, "problems with finish");
+//	fprintf(stderr, "problems with finish");
 	printf("%s", line1);
 	printf("%d %d\n", x, y);
 	printf("%s", line3);
@@ -205,6 +202,7 @@ void finish(char *line1, char *line3){
 
 
 int main(int argc, char *argv[]){
+	fprintf(stderr, "%d\n", argc);
 	if(argc != 3 && argc != 4){                                                   
         	fprintf(stderr, "Wrong # of arguments given\n");
         	fprintf(stderr, "Correct Usage: a.out num_threads option [arg]\n");
@@ -238,7 +236,8 @@ int main(int argc, char *argv[]){
 	fseek(stdin, test, SEEK_CUR); 
 	
 	unsigned char *buffer = (unsigned char *)malloc(fsize);	
-	int bytes_read = read(0, buffer, fsize);
+//	int bytes_read = read(0, buffer, fsize);
+	int bytes_read = fread(buffer, fsize, 1, stdin);
 	if(bytes_read == -1){
 		fprintf(stderr, "read error\n");
 	}	
@@ -263,8 +262,8 @@ int main(int argc, char *argv[]){
 			tok = strtok(NULL, " ");	
 		}
 	}
-	if(argc == 3){
-		int check = 1;
+	int check = 1;
+	if(argc == 3 || argc == 4){
 		number = atoi(argv[1]);
 		char *option = argv[2];
 		pthread_t *threads;
@@ -273,25 +272,33 @@ int main(int argc, char *argv[]){
 		if(strcmp("-I", option) == 0){
 			for(int i = 0; i<number; i++){
 				really++;
-				pthread_create(&threads[i], NULL, invert, (void *) really);
+				if(pthread_create(&threads[i], NULL, invert, (void *) really)!=0){
+					fprintf(stderr, "pthread create error\n");
+				}
 			}
 		}	
 		if(strcmp("-red", option) == 0){
 			for(int i = 0; i<number; i++){
 				really++;
-				pthread_create(&threads[i], NULL, extractRed, (void *) really);
+				if(pthread_create(&threads[i], NULL, extractRed, (void *) really) != 0){
+					fprintf(stderr, "pthread create error\n");
+				}
 			}
 		}
 		if(strcmp("-green", option) == 0){
 			for(int i = 0; i<number; i++){
                         	really++;
-                        	pthread_create(&threads[i], NULL, extractGreen, (void *) really);
+                        	if(pthread_create(&threads[i], NULL, extractGreen, (void *) really) != 0 ){
+					fprintf(stderr, "pthread create error\n");
+				}
 			}
 		}
 		if(strcmp("-blue", option) == 0){
 			for(int i = 0; i<number; i++){
                         	really++;
-                        	pthread_create(&threads[i], NULL, extractBlue, (void *) really);
+                        	if(pthread_create(&threads[i], NULL, extractBlue, (void *) really) != 0){
+					fprintf(stderr, "pthread create error\n");
+				}
 			}
 		}
 		if(strcmp("-R", option) == 0){
@@ -302,11 +309,14 @@ int main(int argc, char *argv[]){
 			rotateLeft();
 			check = 0;	
 		}
-		if(argc == 4){
+		if(strcmp("-C", option) == 0){
+			fprintf(stderr, "should not be running");
 			cp = atof(argv[3]);
 			for(int i = 0; i<number; i++){
 				really++;
-				pthread_create(&threads[i], NULL, contrast, (void *) really);
+				if(pthread_create(&threads[i], NULL, contrast, (void *) really) != 0){
+					fprintf(stderr, "pthread create error\n");
+				}
 			}
 		}
 		if(check == 1){
@@ -318,6 +328,14 @@ int main(int argc, char *argv[]){
 		finish(line1, line3);
 	}
 	
+	fprintf(stderr, "freeing\n");
+	if(check == 1){
+		for(int i = 0; i<x; i++){
+			free(array[i]);
+		}
+		free(array);
+	}
+
 	return 0;
 }
 
